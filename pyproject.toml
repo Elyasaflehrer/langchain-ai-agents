@@ -8,6 +8,8 @@ dependencies = [
     "black>=26.1.0",
     "isort>=7.0.0",
     "langchain>=1.2.10",
+    "langchain-community>=0.4.1",
     "langchain-openai>=1.1.10",
+    "langchain-pinecone>=0.2.13",
     "python-dotenv>=1.2.1",
 ]
