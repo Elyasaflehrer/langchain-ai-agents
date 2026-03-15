@@ -1,8 +1,8 @@
 from typing import Any, Dict
-from graph.state import GraphStage
+from graph.state_graph import GraphState
 from ingestion import retriever
 
-def retrieve(state: GraphStage) -> Dict[str, Any]:
+def retrieve(state: GraphState) -> Dict[str, Any]:
     print("--RETRIVER--")
     question = state["question"]
     documents = retriever.invoke(question)
