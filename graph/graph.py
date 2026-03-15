@@ -1,12 +1,13 @@
 from dotenv import load_dotenv
 
+load_dotenv()
 from langgraph.graph import StateGraph, END
 
 from graph.consts import RETRIEVE, GENERATE, WEBSEARCH, GRADE_DOCUMENTS
 from graph.notes import generate, retrieve, web_search, grade_documents
 from graph.state_graph import GraphState
-
-load_dotenv()
+from graph.chains.answer_grader import answer_grader
+from graph.chains.hallucination_grader import hallucination_grader
 
 def decide_to_generate(state: GraphState) -> str:
     print("---ASSESS GRADED DOCUMENTS---")
@@ -19,6 +20,28 @@ def decide_to_generate(state: GraphState) -> str:
     else:
         print("---DECISION: GENERATE---")
         return GENERATE
+
+def grade_generation_grounded_in_documents_and_question(state: GraphState) -> str:
+    print("---CHECK HALLUCINATION---")
+    documents = state["documents"]
+    question = state["question"]
+    generation = state["generation"]
+    score = hallucination_grader.invoke(
+         {"documents": documents, "generation": generation}
+    )
+    if hallucination_grade := score.binary_score :
+        print("---DECISION: GENERATION IS GROUNDED IN DOCUMENTS---")
+        print("---GRADE GENERATION vs QUESTION---")
+        score = answer_grader.invoke({"question": question, "generation": generation})
+        if score.binary_score:
+            print("---DECISION: GENERATION ADDRESSES QUESTION---")
+            return "useful"
+        else:
+            print("---DECISION: GENERATION DOES NOT ADDRESS QUESTION---")
+            return "not useful"
+    else:
+        print("---DECISION: GENERATION IS NOT GROUNDED IN DOCUMENTS, RE-TRY---")
+        return "not supported"
 
 workflow = StateGraph(GraphState)
 
@@ -36,6 +59,16 @@ workflow.add_conditional_edges(
     path_map={
         WEBSEARCH: WEBSEARCH,
         GENERATE: GENERATE,
+    },
+)
+
+workflow.add_conditional_edges(
+    GENERATE,
+    grade_generation_grounded_in_documents_and_question,
+    path_map={
+        "useful": END,
+        "not useful": WEBSEARCH,
+        "not supported": GENERATE,
     },
 )
 
