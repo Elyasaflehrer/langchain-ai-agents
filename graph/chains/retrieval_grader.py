@@ -1,9 +1,9 @@
 from langchain_core.prompts import ChatPromptTemplate
 from pydantic import BaseModel, Field
 from langchain_openai import ChatOpenAI
-
+from graph.consts import MODEL
 llm = ChatOpenAI(
-    model="gpt-4",  # Explicitly set function calling method
+    model=MODEL,  # Explicitly set function calling method
 )
 
 class GradeDocuments(BaseModel):

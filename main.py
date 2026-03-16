@@ -6,5 +6,5 @@ load_dotenv()
 
 if __name__ == "__main__":
     print("Hello from langchain-ai-agents!")
-    result = app.invoke({"question": "what is the agent memory?"})
+    result = app.invoke({"question": "how make pizza?"})
     print(result.get("generation"))
