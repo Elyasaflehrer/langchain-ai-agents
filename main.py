@@ -1,13 +1,13 @@
 import os
-
+import asyncio
 from dotenv import load_dotenv
 
 load_dotenv()
 
 
-def main():
-    print("Hello from langchain-ai-agents!")
+async def main():
+    print("Hello from mcp-adapter!")
 
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())
